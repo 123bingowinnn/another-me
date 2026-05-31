@@ -7,21 +7,48 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body data-scene="hatch">
-    <main class="hatch-hero">
-      <canvas id="stage" class="hatch-canvas" width="720" height="720" aria-hidden="true"></canvas>
-      <nav class="world-nav" aria-label="主要导航">
-        <a href="./index.html">ANOTHER ME</a>
-        <div>
-          <a href="./pet.html">小猫</a>
+    <div class="douyin-shell" aria-label="抖音卡片展示界面">
+      <header class="douyin-top" aria-hidden="true">
+        <div class="douyin-channel">
+          <span class="douyin-menu"></span>
+          <nav>
+            <span>团购</span>
+            <span>经验</span>
+            <span>北京</span>
+            <span>关注</span>
+            <span>商城</span>
+            <strong>推荐</strong>
+          </nav>
+          <span class="douyin-search"></span>
         </div>
-      </nav>
-      <div class="world-copy">
-        <p class="eyebrow gold">HATCHING SIGNAL</p>
-        <img class="title-logo" src="./another-me-logo.png" alt="Another Me" />
-        <h2 class="title-sub">准备孵化</h2>
-        <p>这颗蛋已经听见你了。轻轻点一下它，它就会破壳，让那只小猫走进你的世界。</p>
-      </div>
-    </main>
+      </header>
+      <section class="douyin-card-stage">
+        <div class="douyin-feature-card">
+          <main class="hatch-hero">
+            <canvas id="stage" class="hatch-canvas" width="720" height="720" aria-hidden="true"></canvas>
+            <nav class="world-nav" aria-label="主要导航">
+              <a href="./index.html">ANOTHER ME</a>
+              <div>
+                <a href="./pet.html">小猫</a>
+              </div>
+            </nav>
+            <div class="world-copy">
+              <p class="eyebrow gold">HATCHING SIGNAL</p>
+              <img class="title-logo" src="./another-me-logo.png" alt="Another Me" />
+              <h2 class="title-sub">准备孵化</h2>
+              <p>这颗蛋已经听见你了。轻轻点一下它，它就会破壳，让那只小猫走进你的世界。</p>
+            </div>
+          </main>
+        </div>
+      </section>
+      <footer class="douyin-bottom" aria-hidden="true">
+        <span class="is-active">首页</span>
+        <span>朋友</span>
+        <strong>＋</strong>
+        <span>消息</span>
+        <span>我</span>
+      </footer>
+    </div>
     <script src="./script.js"></script>
   </body>
 </html>

@@ -95,7 +95,7 @@ Another Me 项目内角色：
 用户每次读完你的回复，都应该立刻知道三件事：我现在的问题核心是什么；我可以先做哪 1-3 件事；下一步最小行动是什么。如果回复没有让用户更清楚、更轻一点、更能行动，就说明这次回复失败了。你要像一只可靠的小猫导师：温柔地陪着，但也认真地把路照亮。
 `;
 
-const DEFAULT_MODEL = "doubao-seed-2-0-pro-260215";
+const DEFAULT_MODEL = "ep-20260530223921-8dctb";
 
 function currentShanghaiDate() {
   return new Intl.DateTimeFormat("zh-CN", {

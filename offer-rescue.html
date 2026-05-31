@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>面试急救局 · Another Me</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        background: #f2f2f5;
+        color: #242632;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "PingFang SC",
+          "Microsoft YaHei",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .phone-frame {
+        width: 100%;
+        max-width: 430px;
+        min-height: 100dvh;
+        margin: 0 auto;
+        overflow-x: hidden;
+        background: #fffdf8;
+      }
+
+      .game-scene {
+        position: relative;
+        height: 178px;
+        overflow: hidden;
+        border-bottom: 1px solid #e7dfd1;
+        background: #fff8ee;
+      }
+
+      .scene-windows {
+        position: absolute;
+        inset: 0 0 auto;
+        display: grid;
+        height: 51px;
+        grid-template-columns: repeat(4, 1fr);
+        border-bottom: 1px solid #eadfcd;
+      }
+
+      .scene-windows div:nth-child(1) {
+        background: #f7dfcf;
+      }
+
+      .scene-windows div:nth-child(2) {
+        background: #e6f2ec;
+      }
+
+      .scene-windows div:nth-child(3) {
+        background: #fff1b8;
+      }
+
+      .scene-windows div:nth-child(4) {
+        background: #dae5f1;
+      }
+
+      .scene-floor {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 57px;
+        background: #d7c5a3;
+      }
+
+      .scene-desk {
+        position: absolute;
+        right: 30px;
+        bottom: 41px;
+        left: 30px;
+        height: 29px;
+        border: 1px solid #6d604d;
+        border-radius: 6px;
+        background: #8f7656;
+      }
+
+      .scene-person {
+        position: absolute;
+        left: 25px;
+        top: 34px;
+        width: 80px;
+        height: 94px;
+        border-radius: 42px 42px 12px 12px;
+        background: #242632;
+      }
+
+      .scene-person::before,
+      .scene-person::after {
+        position: absolute;
+        top: 25px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff8ee;
+        content: "";
+      }
+
+      .scene-person::before {
+        left: 26px;
+      }
+
+      .scene-person::after {
+        right: 26px;
+      }
+
+      .scene-mouth {
+        position: absolute;
+        left: 49px;
+        top: 80px;
+        width: 32px;
+        height: 4px;
+        border-radius: 999px;
+        background: #f07c6c;
+      }
+
+      .scene-card {
+        position: absolute;
+        right: 28px;
+        top: 27px;
+        width: 96px;
+        height: 97px;
+        border: 1px solid #22242e;
+        border-radius: 9px;
+        background: #ffffff;
+        box-shadow: 0 12px 0 #d8d1c6;
+      }
+
+      .scene-card::before {
+        position: absolute;
+        top: 16px;
+        left: 20px;
+        width: 56px;
+        height: 28px;
+        border-radius: 56px 56px 0 0;
+        background: #242632;
+        content: "";
+      }
+
+      .scene-card::after {
+        position: absolute;
+        top: 52px;
+        left: 24px;
+        width: 48px;
+        height: 8px;
+        border-radius: 999px;
+        background: #74b89d;
+        content: "";
+      }
+
+      .scene-note {
+        position: absolute;
+        left: 78px;
+        bottom: 37px;
+        width: 64px;
+        height: 40px;
+        border: 1px solid #22242e;
+        border-radius: 7px;
+        background: #fffdf8;
+      }
+
+      .scene-note i,
+      .scene-note b,
+      .scene-note span {
+        position: absolute;
+        left: 13px;
+        width: 38px;
+        height: 4px;
+        border-radius: 999px;
+      }
+
+      .scene-note i {
+        top: 9px;
+        background: #f2bd4a;
+      }
+
+      .scene-note b {
+        top: 21px;
+        background: #74b89d;
+      }
+
+      .scene-note span {
+        top: 34px;
+        background: #dae5f1;
+      }
+
+      .scene-progress {
+        position: absolute;
+        top: 4px;
+        z-index: 2;
+        border: 1px solid #242632;
+        border-radius: 7px;
+        background: #fffdf8;
+        padding: 7px 10px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .scene-progress {
+        left: 17px;
+      }
+
+      .back-to-world {
+        position: absolute;
+        top: 8px;
+        right: 17px;
+        z-index: 3;
+        border: 1px solid #242632;
+        border-radius: 7px;
+        background: #fffdf8;
+        color: #242632;
+        padding: 7px 10px;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        border-bottom: 1px solid #eee5d7;
+        background: #ffffff;
+        padding: 20px 17px 18px;
+      }
+
+      .metric-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: #3b3833;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .metric-track {
+        height: 8px;
+        margin-top: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #ebe7df;
+      }
+
+      .metric-fill {
+        height: 100%;
+        border-radius: inherit;
+        transition: width 500ms ease;
+      }
+
+      .question {
+        background: #fffdf8;
+        padding: 22px 17px 24px;
+      }
+
+      .question-tag {
+        color: #9b6b1a;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+      }
+
+      h1 {
+        margin: 12px 0 0;
+        font-size: 22px;
+        font-weight: 900;
+        line-height: 1.25;
+      }
+
+      .situation {
+        margin: 12px 0 0;
+        color: #5b5147;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .prompt {
+        margin: 21px 0 0;
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1.5;
+      }
+
+      .options {
+        display: grid;
+        gap: 13px;
+        margin-top: 17px;
+      }
+
+      .option {
+        min-height: 86px;
+        border: 1px solid #e5ddd0;
+        border-radius: 9px;
+        background: #ffffff;
+        padding: 17px 12px 12px;
+        color: #242632;
+        text-align: left;
+        transition:
+          border-color 180ms ease,
+          box-shadow 180ms ease,
+          transform 180ms ease,
+          opacity 180ms ease;
+      }
+
+      .option:not(:disabled):active {
+        transform: translateY(1px);
+      }
+
+      .option.is-selected {
+        border-color: #242632;
+        background: #fff8df;
+        box-shadow: 0 3px 0 #242632;
+      }
+
+      .option.is-dimmed {
+        opacity: 0.55;
+      }
+
+      .option-text {
+        display: block;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.6;
+      }
+
+      .delta {
+        display: inline-flex;
+        height: 31px;
+        align-items: center;
+        margin-top: 17px;
+        border-radius: 7px;
+        padding: 0 9px;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .delta.good {
+        background: #e4f3ed;
+        color: #276653;
+      }
+
+      .delta.mid {
+        background: #fff1c9;
+        color: #7a5711;
+      }
+
+      .delta.risk {
+        background: #ffe3dc;
+        color: #963a2e;
+      }
+
+      .feedback,
+      .result {
+        border-top: 1px solid #eee5d7;
+        background: #fffaf2;
+        padding: 18px 17px 21px;
+      }
+
+      .feedback-title,
+      .result-title {
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .feedback p,
+      .result p {
+        margin: 9px 0 0;
+        color: #534c42;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .tactic {
+        margin-top: 13px;
+        border: 1px solid #e7dfd1;
+        border-radius: 9px;
+        background: #ffffff;
+        padding: 12px;
+        color: #242632;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .tactic span {
+        display: block;
+        margin-bottom: 3px;
+        color: #b05c4d;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+      }
+
+      .primary {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 15px;
+        border: 0;
+        border-radius: 9px;
+        background: #242632;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .result-score {
+        display: grid;
+        grid-template-columns: 1fr 104px;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .result-card,
+      .score-card,
+      .plan-item {
+        border: 1px solid #e7dfd1;
+        border-radius: 9px;
+        background: #ffffff;
+        padding: 14px;
+      }
+
+      .score-card {
+        display: grid;
+        place-items: center;
+        border-color: #242632;
+        background: #fff1b8;
+        font-size: 36px;
+        font-weight: 900;
+      }
+
+      .plan {
+        display: grid;
+        gap: 9px;
+        margin-top: 14px;
+      }
+
+      .plan-item {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 9px;
+        color: #3b3833;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .plan-item b {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 6px;
+        background: #242632;
+        color: #ffffff;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone-frame">
+      <section class="game-scene" aria-hidden="true">
+        <div class="scene-windows"><div></div><div></div><div></div><div></div></div>
+        <div class="scene-person"></div>
+        <div class="scene-mouth"></div>
+        <div class="scene-card"></div>
+        <div class="scene-floor"></div>
+        <div class="scene-desk"></div>
+        <div class="scene-note"><i></i><b></b><span></span></div>
+        <div class="scene-progress" id="sceneProgress">1/6</div>
+        <a class="back-to-world" href="./pet.html">返回猫猫世界</a>
+      </section>
+      <section class="metric-strip" id="metricStrip"></section>
+      <section class="question" id="gameRoot"></section>
+    </main>
+    <script>
+      const INITIAL_METRICS = { calm: 48, voice: 42, action: 44 };
+      const METRICS = [
+        { key: "calm", label: "稳定", color: "#74b89d" },
+        { key: "voice", label: "表达", color: "#f07c6c" },
+        { key: "action", label: "行动", color: "#f2bd4a" },
+      ];
+      const SCENARIOS = [
+        {
+          id: "rejection",
+          tag: "拒信",
+          title: "邮箱弹出一封“很遗憾”",
+          situation: "你刚结束一轮面试，邮件写得很客气，但结果还是没有通过。",
+          prompt: "你现在先做哪一步？",
+          options: [
+            { id: "ruminate", text: "反复回想自己是不是太差了，今晚继续海投同一版简历。", effect: { calm: -14, voice: -6, action: -8 }, note: "这会把一次结果扩大成对自己的审判，行动也会变形。", tactic: "先写下三个事实：问了什么、卡在哪里、下次要补哪一句。" },
+            { id: "debrief", text: "用三行复盘：卡点、证据、下次话术，然后只改一处简历。", effect: { calm: 12, voice: 10, action: 14 }, note: "你把拒绝变成了训练数据，情绪会轻一点，下一轮也更准。", tactic: "复盘句式：我卡在 X，是因为缺少 Y 证据，下一次补 Z。", best: true },
+            { id: "sleep", text: "先躺平一天，完全不碰求职消息。", effect: { calm: 7, voice: -3, action: -10 }, note: "休息有用，但没有边界的躲开会让明天更重。", tactic: "给休息设截止时间：今晚 23:00 前只做一次 5 分钟复盘。" },
+          ],
+        },
+        {
+          id: "comparison",
+          tag: "比较",
+          title: "群聊里同学晒出了 offer",
+          situation: "你替别人开心，但手指已经开始刷新招聘软件，胸口有点堵。",
+          prompt: "你要怎么把比较感降下来？",
+          options: [
+            { id: "mute-and-map", text: "把群静音到明早，打开自己的进度表，只推进一个可控动作。", effect: { calm: 14, voice: 4, action: 12 }, note: "你没有否认情绪，而是把注意力拉回自己的赛道。", tactic: "可控动作可以小到：收藏 3 个匹配岗位，或改掉 1 行经历。", best: true },
+            { id: "ask-salary", text: "马上私聊问薪资和流程，逼自己更努力。", effect: { calm: -8, voice: 2, action: 3 }, note: "信息可能有用，但在情绪上头时容易变成二次比较。", tactic: "先等 20 分钟，再问一个具体问题：你是怎么准备这一轮的？" },
+            { id: "delete-app", text: "删掉所有招聘软件，眼不见心不烦。", effect: { calm: 5, voice: -5, action: -13 }, note: "短期会安静，长期会让不确定性继续堆积。", tactic: "可以设一个窗口：每天 20 分钟投递，结束就关。" },
+          ],
+        },
+        {
+          id: "intro",
+          tag: "开场",
+          title: "面试官说：先介绍一下你自己",
+          situation: "你的脑子突然空白，感觉所有经历都很普通。",
+          prompt: "哪一种开场更稳？",
+          options: [
+            { id: "timeline", text: "从高考、专业、社团一路讲起，尽量讲完整。", effect: { calm: -4, voice: -10, action: -2 }, note: "讲完整不等于讲有效，面试官需要快速判断匹配度。", tactic: "把时间线压缩成和岗位有关的 2 个证据。" },
+            { id: "frame", text: "用“目标岗位 + 两段证据 + 我能解决什么”讲 45 秒。", effect: { calm: 9, voice: 16, action: 7 }, note: "你给面试官递了一个判断框架，后续追问会更可控。", tactic: "模板：我投的是岗位，我有 A 和 B 经验，所以能先承担 C。", best: true },
+            { id: "humble", text: "先说自己经验不多，希望公司多给机会。", effect: { calm: 1, voice: -12, action: -4 }, note: "真诚可以保留，但不要先把自己的价值降下来。", tactic: "把“经验不多”换成“我用项目补了 X 能力”。" },
+          ],
+        },
+        {
+          id: "no-intern",
+          tag: "短板",
+          title: "HR 问：你为什么没有相关实习？",
+          situation: "这是你最怕的问题，简历上确实没有漂亮的大厂经历。",
+          prompt: "你怎么回答？",
+          options: [
+            { id: "apology", text: "道歉，说自己当时没有规划好，所以现在很后悔。", effect: { calm: -8, voice: -9, action: -3 }, note: "反省可以有，但面试现场更需要补偿证据。", tactic: "少讲后悔，多讲你已经补上的能力证据。" },
+            { id: "transfer", text: "承认经历短板，再用课程项目、比赛、兼职证明迁移能力。", effect: { calm: 9, voice: 14, action: 10 }, note: "这不是硬拗，而是在回答面试官真正关心的风险。", tactic: "句式：我没有 X，但我在 Y 里做过 Z，能迁移到这个岗位。", best: true },
+            { id: "avoid", text: "快速带过，然后把话题转回自己性格好、学习快。", effect: { calm: 2, voice: -5, action: 0 }, note: "学习快需要证据，否则听起来像空话。", tactic: "给“学习快”配一个具体速度：几天学会、产出什么。" },
+          ],
+        },
+        {
+          id: "jd",
+          tag: "投递",
+          title: "JD 上写着一串你不熟的要求",
+          situation: "岗位看起来合适又不合适，你担心自己不够格。",
+          prompt: "你要不要投？",
+          options: [
+            { id: "skip", text: "只要有两条不会，就先不投，免得被拒。", effect: { calm: 3, voice: -4, action: -14 }, note: "完美匹配很少见，尤其对应届生岗位。", tactic: "把 JD 分成必须项、加分项、可入职后补项。" },
+            { id: "match", text: "圈出 3 个关键词，各写一条相似经历，命中 60% 就投。", effect: { calm: 8, voice: 8, action: 16 }, note: "你把“我配吗”换成了“我能证明哪几项”。", tactic: "投递备注：我在 X 项目中做过与 JD 中 Y 相近的事情。", best: true },
+            { id: "spray", text: "不看 JD，先一键投 50 个，数量就是安全感。", effect: { calm: -7, voice: -5, action: 5 }, note: "数量有价值，但完全不匹配会制造更多沉默。", tactic: "给海投加过滤器：城市、岗位名、3 个关键词。" },
+          ],
+        },
+        {
+          id: "silence",
+          tag: "追问",
+          title: "你答完后，面试官沉默了两秒",
+          situation: "你开始怀疑自己说错了，手心发热。",
+          prompt: "你怎么接住这个空白？",
+          options: [
+            { id: "fill", text: "立刻补很多细节，直到对方开口。", effect: { calm: -7, voice: -7, action: 1 }, note: "沉默不一定是差评，过度补充会让结构散掉。", tactic: "停一拍，再补一句总结，不要无限延展。" },
+            { id: "check", text: "补一句总结，再问：这个部分需要我展开项目细节吗？", effect: { calm: 11, voice: 12, action: 9 }, note: "你把沉默变成了确认需求，既稳又专业。", tactic: "句式：我刚才的核心是 X。如果需要，我可以展开 Y。", best: true },
+            { id: "panic", text: "赶紧说“不好意思我有点紧张”，然后重来。", effect: { calm: -3, voice: -8, action: -2 }, note: "坦诚可以，但不必把紧张放到台前。", tactic: "用结构重启：我换一个更清晰的方式说。" },
+          ],
+        },
+      ];
+      const state = { round: 0, answers: [] };
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[char]);
+      }
+
+      function clampMetric(value) {
+        return Math.min(100, Math.max(0, value));
+      }
+
+      function getOption(scenario, optionId) {
+        return scenario.options.find((option) => option.id === optionId);
+      }
+
+      function metrics() {
+        const next = { ...INITIAL_METRICS };
+        state.answers.forEach((answer) => {
+          const scenario = SCENARIOS.find((item) => item.id === answer.scenarioId);
+          const option = scenario ? getOption(scenario, answer.optionId) : null;
+          if (!option) return;
+          METRICS.forEach(({ key }) => {
+            next[key] = clampMetric(next[key] + option.effect[key]);
+          });
+        });
+        return next;
+      }
+
+      function metricMarkup(values) {
+        return METRICS.map((metric) => `
+          <div>
+            <div class="metric-head"><span>${metric.label}</span><strong>${values[metric.key]}</strong></div>
+            <div class="metric-track"><div class="metric-fill" style="width:${values[metric.key]}%;background:${metric.color}"></div></div>
+          </div>
+        `).join("");
+      }
+
+      function finalPlan(lowestMetric) {
+        if (lowestMetric === "calm") {
+          return ["今晚只复盘最近一次拒绝，不做自我审判。", "明天投递前先做 60 秒呼吸，再打开招聘软件。", "准备一段“我为什么适合岗位”的 45 秒回答。"];
+        }
+        if (lowestMetric === "voice") {
+          return ["把自我介绍写成 4 句：目标、证据一、证据二、能解决的问题。", "找一个项目经历，补齐背景、动作、结果、复盘。", "录音 1 次，删掉“可能、大概、也许”这类削弱词。"];
+        }
+        return ["选 5 个岗位，只看关键词匹配，不刷无关信息流。", "每个岗位只改简历中的 1 行经历，避免改到停摆。", "投完后记录状态，24 小时内不反复刷新结果。"];
+      }
+
+      function renderResult(values) {
+        const bestCount = state.answers.reduce((count, answer) => {
+          const scenario = SCENARIOS.find((item) => item.id === answer.scenarioId);
+          const option = scenario ? getOption(scenario, answer.optionId) : null;
+          return count + (option?.best ? 1 : 0);
+        }, 0);
+        const average = Math.round(METRICS.reduce((total, { key }) => total + values[key], 0) / METRICS.length);
+        const score = Math.min(100, average + bestCount * 3);
+        const lowest = METRICS.reduce((current, metric) => values[metric.key] < values[current.key] ? metric : current, METRICS[0]);
+        const title = score >= 82 ? "你进入了可面试状态" : score >= 68 ? "节奏救回来了" : "先稳住，再出发";
+        const plan = finalPlan(lowest.key);
+        document.getElementById("gameRoot").innerHTML = `
+          <section class="result">
+            <div class="question-tag">OFFER RESCUE REPORT</div>
+            <h1>${title}</h1>
+            <div class="result-score">
+              <div class="result-card">
+                <div class="result-title">本局命中</div>
+                <p>${bestCount}/6 个可复用动作。</p>
+              </div>
+              <div class="score-card">${score}</div>
+            </div>
+            <div class="plan">
+              ${plan.map((item, index) => `<div class="plan-item"><b>${index + 1}</b><span>${escapeHtml(item)}</span></div>`).join("")}
+            </div>
+            <button class="primary" type="button" data-restart>再玩一局</button>
+          </section>
+        `;
+      }
+
+      function render() {
+        const values = metrics();
+        document.getElementById("metricStrip").innerHTML = metricMarkup(values);
+        const scenario = SCENARIOS[state.round];
+        if (!scenario) {
+          document.getElementById("sceneProgress").textContent = "6/6";
+          renderResult(values);
+          return;
+        }
+        document.getElementById("sceneProgress").textContent = `${state.round + 1}/${SCENARIOS.length}`;
+        const answer = state.answers.find((item) => item.scenarioId === scenario.id);
+        const selected = answer ? getOption(scenario, answer.optionId) : null;
+        document.getElementById("gameRoot").innerHTML = `
+          <div class="question-tag">${escapeHtml(scenario.tag)}</div>
+          <h1>${escapeHtml(scenario.title)}</h1>
+          <p class="situation">${escapeHtml(scenario.situation)}</p>
+          <div class="prompt">${escapeHtml(scenario.prompt)}</div>
+          <div class="options">
+            ${scenario.options.map((option) => {
+              const total = option.effect.calm + option.effect.voice + option.effect.action;
+              const deltaClass = total >= 20 ? "good" : total >= 0 ? "mid" : "risk";
+              const selectedClass = answer?.optionId === option.id ? " is-selected" : "";
+              const dimmedClass = answer && answer.optionId !== option.id ? " is-dimmed" : "";
+              return `
+                <button class="option${selectedClass}${dimmedClass}" type="button" data-option="${option.id}" ${answer ? "disabled" : ""}>
+                  <span class="option-text">${escapeHtml(option.text)}</span>
+                  <span class="delta ${deltaClass}">${total >= 0 ? "+" : ""}${total}</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
+          ${selected ? `
+            <section class="feedback">
+              <div class="feedback-title">${selected.best ? "这一手很稳" : "可以再换一种打法"}</div>
+              <p>${escapeHtml(selected.note)}</p>
+              <div class="tactic"><span>面试锦囊</span>${escapeHtml(selected.tactic)}</div>
+              <button class="primary" type="button" data-next>${state.round === SCENARIOS.length - 1 ? "生成急救报告" : "进入下一幕"}</button>
+            </section>
+          ` : ""}
+        `;
+      }
+
+      document.addEventListener("click", (event) => {
+        const target = event.target.closest("button");
+        if (!target) return;
+        if (target.dataset.option) {
+          const scenario = SCENARIOS[state.round];
+          if (!scenario || state.answers.some((answer) => answer.scenarioId === scenario.id)) return;
+          state.answers.push({ scenarioId: scenario.id, optionId: target.dataset.option });
+          render();
+        }
+        if (target.dataset.next !== undefined) {
+          state.round += 1;
+          render();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        if (target.dataset.restart !== undefined) {
+          state.round = 0;
+          state.answers = [];
+          render();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>

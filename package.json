@@ -1,0 +1,11 @@
+{
+  "name": "another-me",
+  "private": true,
+  "scripts": {
+    "dev": "npx wrangler pages dev . --port 8788",
+    "deploy": "npx wrangler pages deploy . --project-name another-me"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

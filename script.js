@@ -2,7 +2,7 @@ const canvas = document.getElementById("stage");
 const ctx = canvas.getContext("2d");
 const scene = document.body.dataset.scene;
 
-const SCENE = { width: 720, height: 720 };
+const SCENE = { width: canvas.width, height: canvas.height };
 const EGG = { width: 370, height: 469 };
 const EGG_SRC = "./eggs/golden-egg-cutout.png";
 const CAT_SRC = "./pets/jiro-spritesheet.webp";
@@ -45,6 +45,94 @@ const seedLetters = [
   },
 ];
 let activeLetterIndex = 0;
+const sentReplyLog = [];
+const OFFER_INITIAL_METRICS = { calm: 48, voice: 42, action: 44 };
+const OFFER_METRICS = [
+  { key: "calm", label: "稳定", color: "#74b89d" },
+  { key: "voice", label: "表达", color: "#f07c6c" },
+  { key: "action", label: "行动", color: "#f2bd4a" },
+];
+const OFFER_ROLES = [
+  { key: "general", label: "通用", focus: "岗位" },
+  { key: "frontend", label: "前端", focus: "前端岗位" },
+  { key: "product", label: "产品", focus: "产品岗位" },
+  { key: "operation", label: "运营", focus: "运营岗位" },
+];
+const OFFER_SCENARIOS = [
+  {
+    id: "rejection",
+    tag: "拒信",
+    title: "邮箱弹出一封“很遗憾”",
+    situation: "你刚结束一轮面试，邮件写得很客气，但结果还是没有通过。",
+    prompt: "你现在先做哪一步？",
+    options: [
+      { id: "ruminate", text: "反复回想自己是不是太差了，今晚继续海投同一版简历。", effect: { calm: -14, voice: -6, action: -8 }, note: "这会把一次结果扩大成对自己的审判，行动也会变形。", tactic: "先写下三个事实：问了什么、卡在哪里、下次要补哪一句。" },
+      { id: "debrief", text: "用三行复盘：卡点、证据、下次话术，然后只改一处简历。", effect: { calm: 12, voice: 10, action: 14 }, note: "你把拒绝变成了训练数据，情绪会轻一点，下一轮也更准。", tactic: "复盘句式：我卡在 X，是因为缺少 Y 证据，下一次补 Z。", best: true },
+      { id: "sleep", text: "先躺平一天，完全不碰求职消息。", effect: { calm: 7, voice: -3, action: -10 }, note: "休息有用，但没有边界的躲开会让明天更重。", tactic: "给休息设截止时间：今晚 23:00 前只做一次 5 分钟复盘。" },
+    ],
+  },
+  {
+    id: "comparison",
+    tag: "比较",
+    title: "群聊里同学晒出了 offer",
+    situation: "你替别人开心，但手指已经开始刷新招聘软件，胸口有点堵。",
+    prompt: "你要怎么把比较感降下来？",
+    options: [
+      { id: "mute-and-map", text: "把群静音到明早，打开自己的进度表，只推进一个可控动作。", effect: { calm: 14, voice: 4, action: 12 }, note: "你没有否认情绪，而是把注意力拉回自己的赛道。", tactic: "可控动作可以小到：收藏 3 个匹配岗位，或改掉 1 行经历。", best: true },
+      { id: "ask-salary", text: "马上私聊问薪资和流程，逼自己更努力。", effect: { calm: -8, voice: 2, action: 3 }, note: "信息可能有用，但在情绪上头时容易变成二次比较。", tactic: "先等 20 分钟，再问一个具体问题：你是怎么准备这一轮的？" },
+      { id: "delete-app", text: "删掉所有招聘软件，眼不见心不烦。", effect: { calm: 5, voice: -5, action: -13 }, note: "短期会安静，长期会让不确定性继续堆积。", tactic: "可以设一个窗口：每天 20 分钟投递，结束就关。" },
+    ],
+  },
+  {
+    id: "intro",
+    tag: "开场",
+    title: "面试官说：先介绍一下你自己",
+    situation: "你的脑子突然空白，感觉所有经历都很普通。",
+    prompt: "哪一种开场更稳？",
+    options: [
+      { id: "timeline", text: "从高考、专业、社团一路讲起，尽量讲完整。", effect: { calm: -4, voice: -10, action: -2 }, note: "讲完整不等于讲有效，面试官需要快速判断匹配度。", tactic: "把时间线压缩成和岗位有关的 2 个证据。" },
+      { id: "frame", text: "用“目标岗位 + 两段证据 + 我能解决什么”讲 45 秒。", effect: { calm: 9, voice: 16, action: 7 }, note: "你给面试官递了一个判断框架，后续追问会更可控。", tactic: "模板：我投的是{role}，我有 A 和 B 经验，所以能先承担 C。", best: true },
+      { id: "humble", text: "先说自己经验不多，希望公司多给机会。", effect: { calm: 1, voice: -12, action: -4 }, note: "真诚可以保留，但不要先把自己的价值降下来。", tactic: "把“经验不多”换成“我用项目补了 X 能力”。" },
+    ],
+  },
+  {
+    id: "no-intern",
+    tag: "短板",
+    title: "HR 问：你为什么没有相关实习？",
+    situation: "这是你最怕的问题，简历上确实没有漂亮的大厂经历。",
+    prompt: "你怎么回答？",
+    options: [
+      { id: "apology", text: "道歉，说自己当时没有规划好，所以现在很后悔。", effect: { calm: -8, voice: -9, action: -3 }, note: "反省可以有，但面试现场更需要补偿证据。", tactic: "少讲后悔，多讲你已经补上的能力证据。" },
+      { id: "transfer", text: "承认经历短板，再用课程项目、比赛、兼职证明迁移能力。", effect: { calm: 9, voice: 14, action: 10 }, note: "这不是硬拗，而是在回答面试官真正关心的风险。", tactic: "句式：我没有 X，但我在 Y 里做过 Z，能迁移到这个岗位。", best: true },
+      { id: "avoid", text: "快速带过，然后把话题转回自己性格好、学习快。", effect: { calm: 2, voice: -5, action: 0 }, note: "学习快需要证据，否则听起来像空话。", tactic: "给“学习快”配一个具体速度：几天学会、产出什么。" },
+    ],
+  },
+  {
+    id: "jd",
+    tag: "投递",
+    title: "JD 上写着一串你不熟的要求",
+    situation: "岗位看起来合适又不合适，你担心自己不够格。",
+    prompt: "你要不要投？",
+    options: [
+      { id: "skip", text: "只要有两条不会，就先不投，免得被拒。", effect: { calm: 3, voice: -4, action: -14 }, note: "完美匹配很少见，尤其对应届生岗位。", tactic: "把 JD 分成必须项、加分项、可入职后补项。" },
+      { id: "match", text: "圈出 3 个关键词，各写一条相似经历，命中 60% 就投。", effect: { calm: 8, voice: 8, action: 16 }, note: "你把“我配吗”换成了“我能证明哪几项”。", tactic: "投递备注：我在 X 项目中做过与 JD 中 Y 相近的事情。", best: true },
+      { id: "spray", text: "不看 JD，先一键投 50 个，数量就是安全感。", effect: { calm: -7, voice: -5, action: 5 }, note: "数量有价值，但完全不匹配会制造更多沉默。", tactic: "给海投加过滤器：城市、岗位名、3 个关键词。" },
+    ],
+  },
+  {
+    id: "silence",
+    tag: "追问",
+    title: "你答完后，面试官沉默了两秒",
+    situation: "你开始怀疑自己说错了，手心发热。",
+    prompt: "你怎么接住这个空白？",
+    options: [
+      { id: "fill", text: "立刻补很多细节，直到对方开口。", effect: { calm: -7, voice: -7, action: 1 }, note: "沉默不一定是差评，过度补充会让结构散掉。", tactic: "停一拍，再补一句总结，不要无限延展。" },
+      { id: "check", text: "补一句总结，再问：这个部分需要我展开项目细节吗？", effect: { calm: 11, voice: 12, action: 9 }, note: "你把沉默变成了确认需求，既稳又专业。", tactic: "句式：我刚才的核心是 X。如果需要，我可以展开 Y。", best: true },
+      { id: "panic", text: "赶紧说“不好意思我有点紧张”，然后重来。", effect: { calm: -3, voice: -8, action: -2 }, note: "坦诚可以，但不必把紧张放到台前。", tactic: "用结构重启：我换一个更清晰的方式说。" },
+    ],
+  },
+];
+const offerState = { role: "general", round: 0, answers: [] };
 
 const FRAMES = {
   0: { x: 18, y: 5, width: 156, height: 198 },
@@ -458,7 +546,7 @@ function screenPointFromCanvas(x, y) {
 }
 
 function escapeHtml(value) {
-  return value.replace(/[&<>"']/g, (char) => ({
+  return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -467,12 +555,63 @@ function escapeHtml(value) {
   })[char]);
 }
 
+function formatReplyTime(value) {
+  if (!value) return "之前";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "之前";
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function normalizeReply(reply) {
+  if (reply && typeof reply === "object") {
+    return {
+      content: reply.content || "",
+      nickname: reply.nickname || "匿名同学",
+      createdAt: reply.created_at || reply.createdAt || "",
+    };
+  }
+  return {
+    content: String(reply || ""),
+    nickname: "匿名同学",
+    createdAt: "",
+  };
+}
+
+function renderReplyItem(reply) {
+  const normalized = normalizeReply(reply);
+  return `
+    <article class="tree-reply-item">
+      <div>
+        <strong>${escapeHtml(normalized.nickname)}</strong>
+        <time>${escapeHtml(formatReplyTime(normalized.createdAt))}</time>
+      </div>
+      <p>${escapeHtml(normalized.content)}</p>
+    </article>
+  `;
+}
+
 function isTreeHit(point) {
   return point.x >= 280 && point.x <= 1000 && point.y >= 165 && point.y <= 665;
 }
 
+function currentPetScale() {
+  const depth = clamp((walker.bottom - SCENE.height * 0.86) / (SCENE.height * 0.105));
+  return 0.42 + depth * 0.18;
+}
+
 function isCatHit(point) {
-  return Math.abs(point.x - walker.x) < 148 && Math.abs(point.y - (walker.bottom - 82)) < 170;
+  if (!walker.initialized) return false;
+  const scale = currentPetScale();
+  const centerX = walker.x;
+  const centerY = walker.bottom - 76 * scale;
+  const radiusX = 88 * scale;
+  const radiusY = 132 * scale;
+  return ((point.x - centerX) / radiusX) ** 2 + ((point.y - centerY) / radiusY) ** 2 <= 1;
 }
 
 function drawRevealCat(image, elapsed, t) {
@@ -775,8 +914,7 @@ function updateWalker(elapsed) {
 function drawPetScene(cat, elapsed) {
   const state = updateWalker(elapsed);
   // Small pet on a large meadow: scale stays modest, nearer (lower) = slightly bigger.
-  const depth = clamp((walker.bottom - SCENE.height * 0.86) / (SCENE.height * 0.105));
-  const scale = 0.42 + depth * 0.18;
+  const scale = currentPetScale();
   // Walking: a small stepping bounce (lifts up on each step). Idle: gentle breathing.
   const bob = state.moving
     ? -Math.abs(Math.sin(elapsed * 0.013)) * 6
@@ -870,6 +1008,7 @@ function openCatChat() {
   const input = document.getElementById("catChatInput");
   const hint = document.getElementById("catChatHint");
   if (!chat) return;
+  closeOfferRescue();
   closeTreeMail();
   renderChatMessages();
   chat.classList.add("is-open");
@@ -885,46 +1024,81 @@ function closeCatChat() {
   chat.setAttribute("aria-hidden", "true");
 }
 
-function getStoredLetters() {
+let cachedLetters = null;
+let cachedLettersAt = 0;
+
+async function getLettersFromAPI() {
+  if (cachedLetters && Date.now() - cachedLettersAt < 30000) return cachedLetters;
   try {
-    const stored = JSON.parse(localStorage.getItem(LETTER_STORAGE_KEY) || "[]");
-    return Array.isArray(stored) ? stored : [];
+    const res = await fetch("/api/letters");
+    if (!res.ok) throw new Error("API error");
+    cachedLetters = await res.json();
+    cachedLettersAt = Date.now();
+    return cachedLetters;
   } catch {
-    return [];
+    return seedLetters;
   }
 }
 
-function getLetters() {
-  return [...getStoredLetters(), ...seedLetters];
+async function getLetters() {
+  return await getLettersFromAPI();
 }
 
-function saveUserLetter(letter) {
-  const stored = getStoredLetters();
+async function saveUserLetter(letter) {
+  try {
+    const res = await fetch("/api/letters", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: letter.topic, content: letter.content }),
+    });
+    if (res.ok) {
+      cachedLetters = null;
+      return await res.json();
+    }
+  } catch {}
+  const stored = JSON.parse(localStorage.getItem(LETTER_STORAGE_KEY) || "[]");
   localStorage.setItem(LETTER_STORAGE_KEY, JSON.stringify([letter, ...stored]));
+  return null;
 }
 
-function updateStoredLetter(id, updater) {
-  const stored = getStoredLetters();
-  const next = stored.map((letter) => letter.id === id ? updater(letter) : letter);
+async function updateStoredLetter(id, updater) {
+  try {
+    const letter = await (await fetch(`/api/letters/${id}`)).json();
+    const updated = updater(letter);
+    const latestReply = updated.replies?.[updated.replies.length - 1] || "";
+    const normalizedReply = normalizeReply(latestReply);
+    await fetch(`/api/letters/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: normalizedReply.content,
+        nickname: normalizedReply.nickname,
+        created_at: normalizedReply.createdAt,
+      }),
+    });
+    cachedLetters = null;
+  } catch {}
+  const stored = JSON.parse(localStorage.getItem(LETTER_STORAGE_KEY) || "[]");
+  const next = stored.map((l) => l.id === id ? updater(l) : l);
   localStorage.setItem(LETTER_STORAGE_KEY, JSON.stringify(next));
 }
 
-function activeLetter() {
-  const letters = getLetters();
+async function activeLetter() {
+  const letters = await getLetters();
   return letters[activeLetterIndex % letters.length];
 }
 
-function renderActiveLetter() {
+async function renderActiveLetter() {
   const card = document.getElementById("treeLetterCard");
   if (!card) return;
-  const letter = activeLetter();
+  const letter = await activeLetter();
   if (!letter) {
     card.innerHTML = "<span>EMPTY TREE</span><h2>还没有信</h2><p>先寄出第一封职业困难吧。</p>";
     return;
   }
 
   const replies = letter.replies?.length
-    ? `<div class="tree-letter-replies"><strong>树下已经有回应</strong>${letter.replies.map((reply) => `<p>${escapeHtml(reply)}</p>`).join("")}</div>`
+    ? `<div class="tree-letter-replies"><strong>树下已经有回应</strong>${letter.replies.map(renderReplyItem).join("")}</div>`
     : "";
   card.innerHTML = `
     <span>ANONYMOUS LETTER</span>
@@ -932,6 +1106,243 @@ function renderActiveLetter() {
     <p>${escapeHtml(letter.content)}</p>
     ${replies}
   `;
+}
+
+function renderSentReplies() {
+  const list = document.getElementById("treeSentReplies");
+  if (!list) return;
+  if (!sentReplyLog.length) {
+    list.innerHTML = "";
+    return;
+  }
+  list.innerHTML = `
+    <strong>刚刚送出的回应</strong>
+    ${sentReplyLog.slice(0, 3).map((reply) => `
+      <article>
+        <span>${escapeHtml(reply.topic)}</span>
+        <small>${escapeHtml(reply.nickname)} · ${escapeHtml(formatReplyTime(reply.createdAt))}</small>
+        <p>${escapeHtml(reply.content)}</p>
+      </article>
+    `).join("")}
+  `;
+}
+
+function playReplySentAnimation(content) {
+  const form = document.getElementById("treeReplyForm");
+  if (!form) return;
+  const note = document.createElement("div");
+  note.className = "tree-reply-fly";
+  note.setAttribute("aria-hidden", "true");
+  note.innerHTML = `
+    <span></span>
+    <p>${escapeHtml(content.slice(0, 34))}</p>
+  `;
+  form.appendChild(note);
+  note.addEventListener("animationend", () => note.remove(), { once: true });
+}
+
+function renderWithRole(text, roleFocus) {
+  return text.replace("{role}", roleFocus);
+}
+
+function offerRoleFocus() {
+  return OFFER_ROLES.find((item) => item.key === offerState.role)?.focus || "岗位";
+}
+
+function offerOption(scenario, optionId) {
+  return scenario.options.find((option) => option.id === optionId);
+}
+
+function offerMetrics() {
+  const next = { ...OFFER_INITIAL_METRICS };
+  offerState.answers.forEach((answer) => {
+    const scenario = OFFER_SCENARIOS.find((item) => item.id === answer.scenarioId);
+    const option = scenario ? offerOption(scenario, answer.optionId) : null;
+    if (!option) return;
+    OFFER_METRICS.forEach(({ key }) => {
+      next[key] = clamp(next[key] + option.effect[key], 0, 100);
+    });
+  });
+  return next;
+}
+
+function offerMetricBars(metrics) {
+  return OFFER_METRICS.map((metric) => `
+    <div class="offer-meter">
+      <div><span>${metric.label}</span><strong>${metrics[metric.key]}</strong></div>
+      <i><b style="width:${metrics[metric.key]}%;background:${metric.color}"></b></i>
+    </div>
+  `).join("");
+}
+
+function offerPlan(lowestMetric, roleFocus, strong) {
+  if (strong) {
+    return [
+      `把这套回答框架存成${roleFocus}面试前清单。`,
+      "明天只做一轮 20 分钟模拟，不把练习拉成消耗战。",
+      "投递后记录一个可控动作，不用刷新结果证明自己。",
+    ];
+  }
+  if (lowestMetric === "calm") {
+    return [
+      "今晚只复盘最近一次拒绝，不做自我审判。",
+      "明天投递前先做 60 秒呼吸，再打开招聘软件。",
+      `准备一段“我为什么适合${roleFocus}”的 45 秒回答。`,
+    ];
+  }
+  if (lowestMetric === "voice") {
+    return [
+      "把自我介绍写成 4 句：目标、证据一、证据二、能解决的问题。",
+      "找一个项目经历，补齐背景、动作、结果、复盘。",
+      "录音 1 次，删掉“可能、大概、也许”这类削弱词。",
+    ];
+  }
+  return [
+    "选 5 个岗位，只看关键词匹配，不刷无关信息流。",
+    "每个岗位只改简历中的 1 行经历，避免改到停摆。",
+    "投完后记录状态，24 小时内不反复刷新结果。",
+  ];
+}
+
+function renderOfferResult(body, metrics, roleFocus) {
+  const bestCount = offerState.answers.reduce((count, answer) => {
+    const scenario = OFFER_SCENARIOS.find((item) => item.id === answer.scenarioId);
+    const option = scenario ? offerOption(scenario, answer.optionId) : null;
+    return count + (option?.best ? 1 : 0);
+  }, 0);
+  const average = Math.round(OFFER_METRICS.reduce((total, { key }) => total + metrics[key], 0) / OFFER_METRICS.length);
+  const score = Math.min(100, average + bestCount * 3);
+  const lowest = OFFER_METRICS.reduce((current, metric) => metrics[metric.key] < metrics[current.key] ? metric : current, OFFER_METRICS[0]);
+  const strong = score >= 90;
+  const title = score >= 82 ? "你进入了可面试状态" : score >= 68 ? "节奏救回来了" : "先稳住，再出发";
+  const plan = offerPlan(lowest.key, roleFocus, strong);
+  body.innerHTML = `
+    <section class="offer-result">
+      <div>
+        <span>RESCUE REPORT</span>
+        <h2>${title}</h2>
+        <p>本局命中 ${bestCount}/6 个稳态动作。</p>
+      </div>
+      <strong>${score}</strong>
+    </section>
+    <section class="offer-meters">${offerMetricBars(metrics)}</section>
+    <section class="offer-plan">
+      <h3>下一步${strong ? "巩固" : "优先修复"}：${strong ? "行动节奏" : lowest.label}</h3>
+      ${plan.map((item, index) => `<p><b>${index + 1}</b>${escapeHtml(item)}</p>`).join("")}
+      <button type="button" data-offer-restart>再玩一局</button>
+    </section>
+  `;
+}
+
+function renderOfferGame() {
+  const body = document.getElementById("offerRescueBody");
+  if (!body) return;
+  const metrics = offerMetrics();
+  const roleFocus = offerRoleFocus();
+  const scenario = OFFER_SCENARIOS[offerState.round];
+
+  if (!scenario) {
+    renderOfferResult(body, metrics, roleFocus);
+    return;
+  }
+
+  const currentAnswer = offerState.answers.find((answer) => answer.scenarioId === scenario.id);
+  const selected = currentAnswer ? offerOption(scenario, currentAnswer.optionId) : null;
+  body.innerHTML = `
+    <div class="offer-role-tabs">
+      ${OFFER_ROLES.map((role) => `
+        <button type="button" data-offer-role="${role.key}" class="${role.key === offerState.role ? "is-active" : ""}">${role.label}</button>
+      `).join("")}
+    </div>
+    <section class="offer-stage" style="--pressure:${100 - metrics.calm}">
+      <div class="offer-scene">
+        <span>${offerState.round + 1}/${OFFER_SCENARIOS.length}</span>
+        <em>${escapeHtml(scenario.tag)}</em>
+        <i></i><b></b><strong></strong>
+      </div>
+      <div class="offer-meters">${offerMetricBars(metrics)}</div>
+    </section>
+    <section class="offer-question">
+      <span>${escapeHtml(scenario.tag)}</span>
+      <h2>${escapeHtml(renderWithRole(scenario.title, roleFocus))}</h2>
+      <p>${escapeHtml(renderWithRole(scenario.situation, roleFocus))}</p>
+      <h3>${escapeHtml(renderWithRole(scenario.prompt, roleFocus))}</h3>
+      <div class="offer-options">
+        ${scenario.options.map((option) => {
+          const total = option.effect.calm + option.effect.voice + option.effect.action;
+          const className = [
+            currentAnswer ? "is-locked" : "",
+            currentAnswer?.optionId === option.id ? "is-selected" : "",
+            total >= 20 ? "is-good" : total >= 0 ? "is-mid" : "is-risk",
+          ].filter(Boolean).join(" ");
+          return `
+            <button type="button" data-offer-option="${option.id}" class="${className}" ${currentAnswer ? "disabled" : ""}>
+              <span>${escapeHtml(renderWithRole(option.text, roleFocus))}</span>
+              <small>${total >= 0 ? "+" : ""}${total}</small>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+    ${selected ? `
+      <section class="offer-feedback">
+        <strong>${selected.best ? "这一手很稳" : "可以再换一种打法"}</strong>
+        <p>${escapeHtml(renderWithRole(selected.note, roleFocus))}</p>
+        <div><span>面试锦囊</span>${escapeHtml(renderWithRole(selected.tactic, roleFocus))}</div>
+        <button type="button" data-offer-next>${offerState.round === OFFER_SCENARIOS.length - 1 ? "生成急救报告" : "进入下一幕"}</button>
+      </section>
+    ` : ""}
+  `;
+}
+
+function openOfferRescue() {
+  navigateWithFade("./offer-rescue.html");
+}
+
+function closeOfferRescue() {
+  const panel = document.getElementById("offerRescue");
+  if (!panel) return;
+  panel.classList.remove("is-open");
+  panel.setAttribute("aria-hidden", "true");
+}
+
+function setupOfferRescue() {
+  document.querySelectorAll("[data-offer-open]").forEach((button) => {
+    button.addEventListener("click", openOfferRescue);
+  });
+  document.querySelectorAll("[data-tool-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      navigateWithFade(button.dataset.toolOpen);
+    });
+  });
+  const panel = document.getElementById("offerRescue");
+  if (!panel) return;
+  document.getElementById("offerRescueClose")?.addEventListener("click", closeOfferRescue);
+  panel.addEventListener("click", (event) => {
+    const target = event.target.closest("button");
+    if (!target) return;
+    if (target.dataset.offerRole) {
+      offerState.role = target.dataset.offerRole;
+      offerState.round = 0;
+      offerState.answers = [];
+      renderOfferGame();
+    }
+    if (target.dataset.offerOption) {
+      const scenario = OFFER_SCENARIOS[offerState.round];
+      if (!scenario || offerState.answers.some((answer) => answer.scenarioId === scenario.id)) return;
+      offerState.answers.push({ scenarioId: scenario.id, optionId: target.dataset.offerOption });
+      renderOfferGame();
+    }
+    if (target.dataset.offerNext !== undefined) {
+      offerState.round += 1;
+      renderOfferGame();
+    }
+    if (target.dataset.offerRestart !== undefined) {
+      offerState.round = 0;
+      offerState.answers = [];
+      renderOfferGame();
+    }
+  });
 }
 
 function setTreeMailTab(tabName) {
@@ -949,6 +1360,7 @@ function setTreeMailTab(tabName) {
 
 function openTreeMail(tabName = "send") {
   closeCatChat();
+  closeOfferRescue();
   closeTreeActions();
   const panel = document.getElementById("treeMail");
   if (!panel) return;
@@ -964,8 +1376,8 @@ function closeTreeMail() {
   panel.setAttribute("aria-hidden", "true");
 }
 
-function nextLetter() {
-  const letters = getLetters();
+async function nextLetter() {
+  const letters = await getLetters();
   if (!letters.length) return;
   activeLetterIndex = (activeLetterIndex + 1) % letters.length;
   renderActiveLetter();
@@ -981,6 +1393,7 @@ function closeTreeActions() {
 function toggleTreeActions() {
   closeCatChat();
   closeTreeMail();
+  closeOfferRescue();
   const actions = document.getElementById("treeActions");
   if (!actions) return;
   const willOpen = !actions.classList.contains("is-open");
@@ -1025,7 +1438,7 @@ function setupTreeMail() {
   });
   document.getElementById("nextLetterButton")?.addEventListener("click", nextLetter);
 
-  letterForm.addEventListener("submit", (event) => {
+  letterForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const content = document.getElementById("treeLetterContent").value.trim();
     if (!content) {
@@ -1033,7 +1446,7 @@ function setupTreeMail() {
       return;
     }
     const topic = content.length > 18 ? `${content.slice(0, 18)}...` : content;
-    saveUserLetter({
+    await saveUserLetter({
       id: `letter-${Date.now()}`,
       topic: topic || "一封职业困难",
       content,
@@ -1044,24 +1457,36 @@ function setupTreeMail() {
     if (status) status.textContent = "信已经寄出。它会像漂流瓶一样，等一个认真回应。";
   });
 
-  replyForm.addEventListener("submit", (event) => {
+  replyForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const content = document.getElementById("treeReplyContent").value.trim();
-    const letter = activeLetter();
+    const nickname = document.getElementById("treeReplyNickname")?.value.trim() || "匿名同学";
+    const letter = await activeLetter();
     if (!content || !letter) return;
-    const repliedLetterId = letter.id;
+    const reply = {
+      content,
+      nickname,
+      created_at: new Date().toISOString(),
+    };
     if (letter.id.startsWith("seed-")) {
-      letter.replies = [...(letter.replies || []), content];
+      letter.replies = [...(letter.replies || []), reply];
     } else {
-      updateStoredLetter(letter.id, (storedLetter) => ({
+      await updateStoredLetter(letter.id, (storedLetter) => ({
         ...storedLetter,
-        replies: [...(storedLetter.replies || []), content],
+        replies: [...(storedLetter.replies || []), reply],
       }));
     }
+    sentReplyLog.unshift({
+      topic: letter.topic || "一封职业困难",
+      content,
+      nickname,
+      createdAt: reply.created_at,
+    });
+    playReplySentAnimation(content);
     document.getElementById("treeReplyContent").value = "";
-    nextLetter();
-    if (activeLetter()?.id === repliedLetterId) renderActiveLetter();
-    if (replyStatus) replyStatus.textContent = "回信已经漂走，下一封来了。";
+    await renderActiveLetter();
+    renderSentReplies();
+    if (replyStatus) replyStatus.textContent = "回信已经送到树下，也留在下面了。";
   });
 
   const placeHint = () => {
@@ -1104,8 +1529,7 @@ function offlineCatReply(text) {
 }
 
 function chatApiEndpoint() {
-  const isLocalStatic = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  return isLocalStatic ? "https://another-me-main.vercel.app/api/chat" : "/api/chat";
+  return "/api/chat";
 }
 
 function relatedDouyinVideos(text) {
@@ -1344,7 +1768,7 @@ function setupCatChat() {
       requestAnimationFrame(placeHint);
       return;
     }
-    const screen = screenPointFromCanvas(walker.x, walker.bottom - 118);
+    const screen = screenPointFromCanvas(walker.x, walker.bottom - 174 * currentPetScale() - 24);
     hint.style.left = `${screen.x}px`;
     hint.style.top = `${screen.y}px`;
     hint.style.bottom = "auto";
@@ -1456,6 +1880,7 @@ async function start() {
     setupKeyboardInset();
     setupCatChat();
     setupTreeMail();
+    setupOfferRescue();
   }
   requestAnimationFrame(render);
 }

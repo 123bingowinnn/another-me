@@ -1,0 +1,48 @@
+:root {
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei",
+    "Segoe UI", sans-serif;
+  color: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f2f2f5; /* 手机框外背景（桌面预览时可见） */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 竖屏手机容器：移动端全屏，桌面居中成手机条 */
+.phone-frame {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: #ffffff;
+  overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 480px) {
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .phone-frame {
+    margin: 24px auto;
+    min-height: calc(100dvh - 48px);
+    border-radius: 32px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+  }
+}

@@ -7,7 +7,24 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body data-scene="pet">
-    <main class="web-frame world-page">
+    <div class="douyin-shell" aria-label="抖音卡片展示界面">
+      <header class="douyin-top" aria-hidden="true">
+        <div class="douyin-channel">
+          <span class="douyin-menu"></span>
+          <nav>
+            <span>团购</span>
+            <span>经验</span>
+            <span>北京</span>
+            <span>关注</span>
+            <span>商城</span>
+            <strong>推荐</strong>
+          </nav>
+          <span class="douyin-search"></span>
+        </div>
+      </header>
+      <section class="douyin-card-stage">
+        <div class="douyin-feature-card">
+          <main class="web-frame world-page">
       <section class="world-hero">
         <video class="world-video-bg" autoplay muted loop playsinline preload="auto">
           <source src="./world/world-background.mp4" type="video/mp4" />
@@ -25,10 +42,13 @@
           <p>把情绪放进这个世界里，小猫会在你的场景中自由走动、停留、观察，然后用自己的节奏靠近。</p>
         </div>
         <div class="cat-chat-hint" id="catChatHint" role="button" tabindex="0">可以跟我聊天哦。</div>
-        <div class="tree-mail-hint" id="treeMailHint" aria-hidden="true">点树寄信或回答困难</div>
+        <div class="tree-mail-hint" id="treeMailHint" aria-hidden="true">点树进入职业树洞</div>
         <div class="tree-actions" id="treeActions" aria-label="职业树洞操作" aria-hidden="true">
           <button type="button" data-tree-open="send" aria-label="寄出信封">寄出信封</button>
-          <button type="button" data-tree-open="reply" aria-label="回答困难">回答困难</button>
+          <button type="button" data-tree-open="reply" aria-label="给困难回信">给困难回信</button>
+          <button type="button" data-offer-open aria-label="进入面试急救局">面试急救</button>
+          <button type="button" data-tool-open="./compare-demon/index.html" aria-label="进入比较心魔小游戏">比较心魔</button>
+          <button type="button" data-tool-open="./resume-review-app/index.html" aria-label="进入简历诊断室">简历诊断</button>
         </div>
         <section class="cat-chat" id="catChat" aria-label="和小猫聊天" aria-hidden="true">
           <div class="cat-chat-header">
@@ -71,7 +91,7 @@
           </div>
           <div class="tree-mail-tabs" role="tablist" aria-label="树洞信箱操作">
             <button class="is-active" id="sendLetterTab" type="button" data-mail-tab="send">寄出信封</button>
-            <button id="replyLetterTab" type="button" data-mail-tab="reply">回答困难</button>
+            <button id="replyLetterTab" type="button" data-mail-tab="reply">给困难回信</button>
           </div>
           <div class="tree-mail-panel is-active" id="sendLetterPanel">
             <p class="tree-mail-intro">写一句职业卡点，折进信封里寄给树下的人。</p>
@@ -84,17 +104,29 @@
           <div class="tree-mail-panel" id="replyLetterPanel">
             <article class="tree-letter-card" id="treeLetterCard"></article>
             <form class="tree-reply-form" id="treeReplyForm">
+              <input id="treeReplyNickname" name="nickname" type="text" maxlength="16" placeholder="你的昵称（默认匿名同学）" aria-label="回复昵称" />
               <textarea id="treeReplyContent" rows="4" maxlength="360" placeholder="写一段温柔、具体的回应给 TA" aria-label="回复职业困难"></textarea>
               <div class="tree-reply-actions">
                 <button type="button" id="nextLetterButton">换一封</button>
                 <button type="submit">送出回复</button>
               </div>
             </form>
+            <div class="tree-sent-replies" id="treeSentReplies" aria-live="polite"></div>
             <div class="tree-reply-status" id="treeReplyStatus" aria-live="polite"></div>
           </div>
         </section>
       </section>
-    </main>
+          </main>
+        </div>
+      </section>
+      <footer class="douyin-bottom" aria-hidden="true">
+        <span class="is-active">首页</span>
+        <span>朋友</span>
+        <strong>＋</strong>
+        <span>消息</span>
+        <span>我</span>
+      </footer>
+    </div>
     <script src="./video-resources.js"></script>
     <script src="./script.js"></script>
   </body>
