@@ -25,23 +25,28 @@ export function matchVideos(query, videos) {
     }
   });
 
-  const scored = videos.map((video, index) => {
-    const searchable = `${video.title} ${(video.tags_json ? JSON.parse(video.tags_json) : []).join(" ")} ${video.highlight || ""} ${video.creator || ""}`.toLowerCase();
+  if (expanded.size === 0) return [];
+
+  const scored = videos.map((video) => {
+    const videoTags = (video.tags_json ? JSON.parse(video.tags_json) : []).map((t) => t.toLowerCase());
+    const titleAndHighlight = `${video.title} ${video.highlight || ""}`.toLowerCase();
     let score = 0;
     expanded.forEach((tag) => {
-      if (searchable.includes(tag.toLowerCase())) score += 4;
+      const tagLower = tag.toLowerCase();
+      if (videoTags.includes(tagLower)) score += 6;
+      else if (titleAndHighlight.includes(tagLower)) score += 2;
     });
     q.split(/[^一-龥a-zA-Z0-9]+/)
       .filter((word) => word.length >= 2)
       .forEach((word) => {
-        if (searchable.includes(word)) score += 1;
+        if (videoTags.some((t) => t.includes(word))) score += 3;
+        else if (titleAndHighlight.includes(word)) score += 1;
       });
-    if (score === 0 && /工作|求职|就业|职业/.test(q) && index < 6) score = 1;
     return { video, score };
   });
 
   return scored
-    .filter((item) => item.score > 0)
+    .filter((item) => item.score >= 3)
     .sort((a, b) => b.score - a.score)
     .slice(0, 3)
     .map((item) => item.video);

@@ -1416,6 +1416,15 @@ function setupKeyboardInset() {
   update();
 }
 
+function setupAndroidViewport() {
+  const setVh = () => {
+    document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+  };
+  setVh();
+  window.addEventListener("resize", setVh);
+  window.addEventListener("orientationchange", () => setTimeout(setVh, 100));
+}
+
 function setupTreeMail() {
   const panel = document.getElementById("treeMail");
   const letterForm = document.getElementById("treeLetterForm");
@@ -1555,21 +1564,26 @@ function relatedDouyinVideos(text) {
     }
   });
 
-  const scored = resources.map((video, index) => {
-    const searchable = `${video.title} ${(video.tags || []).join(" ")} ${video.highlight} ${video.creator || ""}`.toLowerCase();
+  if (expanded.size === 0) return [];
+
+  const scored = resources.map((video) => {
+    const videoTags = (video.tags || []).map((t) => t.toLowerCase());
+    const titleAndHighlight = `${video.title} ${video.highlight}`.toLowerCase();
     let score = 0;
     expanded.forEach((tag) => {
-      if (searchable.includes(tag.toLowerCase())) score += 4;
+      const tagLower = tag.toLowerCase();
+      if (videoTags.includes(tagLower)) score += 6;
+      else if (titleAndHighlight.includes(tagLower)) score += 2;
     });
     query.split(/[^\u4e00-\u9fa5a-zA-Z0-9]+/).filter((word) => word.length >= 2).forEach((word) => {
-      if (searchable.includes(word)) score += 1;
+      if (videoTags.some((t) => t.includes(word))) score += 3;
+      else if (titleAndHighlight.includes(word)) score += 1;
     });
-    if (score === 0 && /工作|求职|就业|职业/.test(query) && index < 6) score = 1;
     return { video, score };
   });
 
   return scored
-    .filter((item) => item.score > 0)
+    .filter((item) => item.score >= 3)
     .sort((a, b) => b.score - a.score)
     .slice(0, 3)
     .map((item) => item.video);
@@ -1752,7 +1766,7 @@ function setupCatChat() {
     canvas.style.cursor = isCatHit(point) || isTreeHit(point) ? "pointer" : "default";
   });
 
-  canvas.addEventListener("click", (event) => {
+  canvas.addEventListener("pointerup", (event) => {
     const point = canvasPointFromClient(event.clientX, event.clientY);
     if (isCatHit(point)) openCatChat();
     else if (isTreeHit(point)) toggleTreeActions();
@@ -1836,7 +1850,7 @@ function enableEggClick(getElapsed) {
   canvas.addEventListener("pointermove", (e) => {
     canvas.style.cursor = hatchRevealStartedAt === null && isOnEgg(e.clientX, e.clientY) ? "pointer" : "default";
   });
-  canvas.addEventListener("click", (e) => {
+  canvas.addEventListener("pointerup", (e) => {
     if (!isOnEgg(e.clientX, e.clientY) || hatchRevealStartedAt !== null) return;
     hatchRevealStartedAt = getElapsed();
     canvas.style.cursor = "default";
@@ -1856,6 +1870,7 @@ async function start() {
   }
 
   setupPageTransitions();
+  setupAndroidViewport();
 
   ctx.imageSmoothingEnabled = true;
   document.querySelector(".world-video-bg")?.play?.().catch(() => {});

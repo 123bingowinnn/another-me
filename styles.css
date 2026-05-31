@@ -27,6 +27,7 @@ body[data-scene="pet"],
 body[data-scene="hatch"],
 body[data-scene="reveal"] {
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background: #050505;
 }
@@ -40,6 +41,7 @@ a {
   position: relative;
   width: min(100vw, 430px);
   height: 100dvh;
+  height: calc(var(--vh, 1vh) * 100);
   min-height: 680px;
   margin: 0 auto;
   overflow: hidden;
@@ -217,7 +219,14 @@ a {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 22px 80px rgba(0, 0, 0, 0.22);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .douyin-feature-card {
+    background: rgba(13, 24, 26, 0.88);
+  }
 }
 
 .douyin-feature-card .world-page,
@@ -328,15 +337,17 @@ body[data-scene="reveal"] {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   margin: 0 auto;
   overflow-x: hidden;
   background: #ffffff;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .web-frame {
   width: 100%;
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background: #101512;
 }
@@ -344,18 +355,21 @@ body[data-scene="reveal"] {
 .hatch-page,
 .jiro-landing {
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   background: #fffdf8;
 }
 
 .hero {
   position: relative;
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   color: #1a1a1a;
 }
 
 .pet-hero {
   min-height: 86dvh;
+  min-height: calc(var(--vh, 1vh) * 86);
   background: #f2efe8;
 }
 
@@ -396,6 +410,7 @@ body[data-scene="reveal"] {
   width: 100%;
   height: min(520px, 70dvh);
   object-fit: contain;
+  touch-action: manipulation;
 }
 
 body[data-scene="pet"] .stage-canvas {
@@ -403,12 +418,14 @@ body[data-scene="pet"] .stage-canvas {
   z-index: 2;
   height: 100%;
   object-fit: cover;
+  touch-action: manipulation;
 }
 
 .hatch-hero {
   position: relative;
   width: 100%;
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background:
     radial-gradient(circle at 60% 44%, rgba(255, 233, 168, 0.55), transparent 48%),
@@ -421,13 +438,14 @@ body[data-scene="pet"] .stage-canvas {
   z-index: 1;
   width: 100%;
   height: 100%;
-  /* Square canvas (720x720) letterboxes to a centered stage on any viewport. */
   object-fit: contain;
+  touch-action: manipulation;
 }
 
 .world-page,
 .world-hero {
   min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
 }
 
 .world-hero {
@@ -445,10 +463,9 @@ body[data-scene="pet"] .stage-canvas {
   z-index: 2;
   width: 100%;
   height: 100%;
-  /* Match the video's letterboxing (both are intrinsically 1280x720)
-     so the cat's coordinate space maps 1:1 onto the visible video. */
   object-fit: contain;
   object-position: center center;
+  touch-action: manipulation;
 }
 
 .world-nav {
@@ -532,7 +549,14 @@ body[data-scene="world"] .title-sub {
   background: rgba(255, 253, 248, 0.54);
   color: #1a1a1a;
   padding: 18px 20px;
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
+}
+
+@supports not (backdrop-filter: blur(14px)) {
+  .world-panel {
+    background: rgba(255, 253, 248, 0.92);
+  }
 }
 
 .world-panel-wide {
@@ -844,6 +868,7 @@ body[data-scene="world"] .title-logo {
   line-height: 1.35;
   cursor: pointer;
   pointer-events: auto;
+  touch-action: manipulation;
   transform: translate(-50%, calc(-100% - 18px));
   transition:
     opacity 220ms ease,
@@ -876,11 +901,13 @@ body[data-scene="world"] .title-logo {
 .cat-chat {
   position: fixed;
   top: calc((100dvh - var(--keyboard-inset)) / 2);
+  top: calc((calc(var(--vh, 1vh) * 100) - var(--keyboard-inset)) / 2);
   left: 50%;
   z-index: 8;
   display: flex;
   width: min(420px, calc(100vw - 36px));
   max-height: min(480px, calc(100dvh - 176px - var(--keyboard-inset)));
+  max-height: min(480px, calc(calc(var(--vh, 1vh) * 100) - 176px - var(--keyboard-inset)));
   flex-direction: column;
   overflow: hidden;
   border: 3px solid rgba(15, 20, 24, 0.94);
@@ -896,6 +923,11 @@ body[data-scene="world"] .title-logo {
   transition:
     opacity 220ms ease,
     transform 220ms ease;
+}
+
+/* Android keyboard pushes viewport up — pin chat to visible area */
+body.keyboard-open .cat-chat {
+  max-height: min(480px, calc(calc(var(--vh, 1vh) * 100) - 80px));
 }
 
 .cat-chat.is-open {
@@ -949,6 +981,8 @@ body[data-scene="world"] .title-logo {
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 16px;
 }
 
@@ -1013,6 +1047,8 @@ body[data-scene="world"] .title-logo {
   grid-auto-flow: column;
   gap: 8px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   padding-bottom: 2px;
   scroll-snap-type: x mandatory;
 }
@@ -1167,6 +1203,7 @@ body[data-scene="world"] .title-logo {
   font-size: 12px;
   font-weight: 850;
   cursor: pointer;
+  touch-action: manipulation;
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
@@ -1450,6 +1487,8 @@ body[data-scene="world"] .title-logo {
   z-index: 1;
   display: none;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 12px 14px 13px;
 }
 
@@ -1841,6 +1880,8 @@ body[data-scene="world"] .title-logo {
 
 .offer-rescue-body {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .offer-role-tabs {
