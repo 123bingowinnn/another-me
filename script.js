@@ -1689,11 +1689,11 @@ async function readCatStream(response, assistantMessage) {
 
 async function sendCatMessage(text) {
   chatMessages.push({ role: "user", content: text });
+  const pendingVideos = relatedDouyinVideos(text);
   const assistantMessage = {
     role: "assistant",
     content: "",
     streaming: true,
-    videos: relatedDouyinVideos(text),
   };
   chatMessages.push(assistantMessage);
   renderChatMessages();
@@ -1717,7 +1717,10 @@ async function sendCatMessage(text) {
       : "我现在连不上职业导师服务。可能是模型服务还没开通，等配置好后我再认真回答你。";
   }
 
-  renderChatMessages();
+  if (pendingVideos.length) {
+    assistantMessage.videos = pendingVideos;
+    renderChatMessages();
+  }
 }
 
 function updateQuickRepliesVisibility() {
