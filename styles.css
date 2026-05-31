@@ -274,10 +274,66 @@ a {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: #000000;
   color: rgba(255, 255, 255, 0.48);
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 850;
   text-align: center;
   pointer-events: none;
+}
+
+.douyin-bottom span,
+.douyin-bottom .is-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.douyin-bottom i {
+  display: block;
+  border: 2px solid currentColor;
+}
+
+.douyin-bottom .icon-home {
+  width: 22px;
+  height: 18px;
+  border: none;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 0% 60%, 15% 60%, 15% 100%, 40% 100%, 40% 70%, 60% 70%, 60% 100%, 85% 100%, 85% 60%, 100% 60%);
+}
+
+.douyin-bottom .icon-friends {
+  width: 22px;
+  height: 16px;
+  border: none;
+  background: currentColor;
+  clip-path: polygon(35% 0%, 65% 0%, 75% 15%, 75% 35%, 65% 50%, 55% 50%, 55% 65%, 90% 75%, 90% 100%, 10% 100%, 10% 75%, 45% 65%, 45% 50%, 35% 50%, 25% 35%, 25% 15%);
+}
+
+.douyin-bottom .icon-message {
+  width: 22px;
+  height: 17px;
+  border-radius: 6px;
+  border-width: 2.5px;
+  position: relative;
+}
+
+.douyin-bottom .icon-message::after {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+  content: "";
+}
+
+.douyin-bottom .icon-profile {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border-width: 2.5px;
 }
 
 .douyin-bottom .is-active {
@@ -862,7 +918,7 @@ body[data-scene="world"] .title-logo {
 }
 
 .cat-chat-hint {
-  position: absolute;
+  position: fixed;
   z-index: 5;
   left: 50%;
   bottom: 23%;
@@ -1266,7 +1322,7 @@ body.keyboard-open .cat-chat {
 }
 
 .tree-mail-hint {
-  position: absolute;
+  position: fixed;
   z-index: 5;
   left: 50%;
   top: 35%;
@@ -1284,6 +1340,7 @@ body.keyboard-open .cat-chat {
   font-weight: 900;
   line-height: 1.35;
   pointer-events: none;
+  touch-action: manipulation;
   transform: translate(-50%, -50%);
   transition:
     opacity 180ms ease,
@@ -1306,11 +1363,12 @@ body.keyboard-open .cat-chat {
 
 .tree-mail-hint.is-hidden {
   opacity: 0;
+  pointer-events: none;
   transform: translate(-50%, calc(-50% + 8px));
 }
 
 .tree-actions {
-  position: absolute;
+  position: fixed;
   z-index: 6;
   display: grid;
   width: min(236px, 68vw);
@@ -2345,105 +2403,17 @@ body.keyboard-open .cat-chat {
   }
 }
 
-/* Tablet and iPad: full-width shell centered, larger touch targets */
-@media (min-width: 561px) and (max-width: 1024px) {
+/* Tablet / iPad / PC: same mobile layout, centered */
+@media (min-width: 561px) {
   .douyin-shell {
-    width: min(100vw, 540px);
+    width: min(100vw, 430px);
     min-height: 100dvh;
     min-height: calc(var(--vh, 1vh) * 100);
     margin: 0 auto;
-  }
-
-  .douyin-top {
-    padding: 18px 20px 0;
-  }
-
-  .douyin-channel nav {
-    font-size: 16px;
-  }
-
-  .douyin-card-stage {
-    top: 78px;
-    right: 14px;
-    bottom: 78px;
-    left: 14px;
-  }
-
-  .douyin-bottom {
-    height: 72px;
-    font-size: 15px;
-  }
-
-  .cat-chat {
-    width: min(440px, calc(100vw - 48px));
-    max-height: min(560px, calc(calc(var(--vh, 1vh) * 100) - 160px - var(--keyboard-inset)));
-  }
-
-  .tree-mail {
-    right: calc(50% - min(270px, calc(50vw - 24px)));
-    left: calc(50% - min(270px, calc(50vw - 24px)));
-    max-height: min(440px, calc(calc(var(--vh, 1vh) * 100) - 200px - var(--keyboard-inset)));
   }
 
   .offer-rescue-shell {
     max-height: min(680px, calc(calc(var(--vh, 1vh) * 100) - 48px));
-  }
-}
-
-/* Large tablet / iPad Pro / desktop: expand layout */
-@media (min-width: 1025px) {
-  .douyin-shell {
-    width: min(100vw, 640px);
-    min-height: 100dvh;
-    min-height: calc(var(--vh, 1vh) * 100);
-    margin: 0 auto;
-  }
-
-  .douyin-top {
-    padding: 22px 24px 0;
-  }
-
-  .douyin-status {
-    font-size: 20px;
-  }
-
-  .douyin-channel nav {
-    font-size: 17px;
-    gap: 16px;
-  }
-
-  .douyin-card-stage {
-    top: 86px;
-    right: 18px;
-    bottom: 82px;
-    left: 18px;
-  }
-
-  .douyin-feature-card {
-    border-radius: 28px;
-  }
-
-  .douyin-bottom {
-    height: 80px;
-    font-size: 17px;
-  }
-
-  .douyin-bottom strong {
-    width: 48px;
-    height: 34px;
-    border-radius: 14px;
-    font-size: 30px;
-  }
-
-  .cat-chat {
-    width: min(480px, calc(100vw - 64px));
-    max-height: min(620px, calc(calc(var(--vh, 1vh) * 100) - 140px - var(--keyboard-inset)));
-  }
-
-  .tree-mail {
-    right: calc(50% - min(300px, calc(50vw - 32px)));
-    left: calc(50% - min(300px, calc(50vw - 32px)));
-    max-height: min(480px, calc(calc(var(--vh, 1vh) * 100) - 180px - var(--keyboard-inset)));
   }
 }
 

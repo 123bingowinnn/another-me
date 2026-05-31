@@ -763,16 +763,8 @@ function isMobileWorldScene() {
 }
 
 function visibleWorldBounds() {
-  if (!isMobileWorldScene()) {
-    return {
-      minX: SCENE.width * 0.2,
-      maxX: SCENE.width * 0.82,
-      grassMin: SCENE.height * 0.86,
-      grassMax: SCENE.height * 0.965,
-    };
-  }
-
-  const viewportRatio = window.innerWidth / window.innerHeight;
+  const rect = canvas.getBoundingClientRect();
+  const viewportRatio = rect.width / rect.height;
   const worldRatio = SCENE.width / SCENE.height;
   const visibleWidth = viewportRatio < worldRatio
     ? SCENE.height * viewportRatio
@@ -1507,15 +1499,16 @@ function setupTreeMail() {
       requestAnimationFrame(placeHint);
       return;
     }
-    const actionAnchor = screenPointFromCanvas(640, 200);
+    const actionAnchor = screenPointFromCanvas(640, 280);
     if (actions) {
       actions.style.left = `${actionAnchor.x}px`;
       actions.style.top = `${actionAnchor.y + 46}px`;
     }
     if (hint && !busy) {
-      const hintAnchor = screenPointFromCanvas(640, 200);
+      const hintAnchor = screenPointFromCanvas(640, 280);
       hint.style.left = `${hintAnchor.x}px`;
       hint.style.top = `${hintAnchor.y}px`;
+      hint.style.transform = "translate(-50%, -50%)";
     }
     requestAnimationFrame(placeHint);
   };
@@ -1789,6 +1782,7 @@ function setupCatChat() {
     hint.style.left = `${screen.x}px`;
     hint.style.top = `${screen.y}px`;
     hint.style.bottom = "auto";
+    hint.style.transform = "translate(-50%, calc(-100% - 18px))";
     requestAnimationFrame(placeHint);
   };
 
