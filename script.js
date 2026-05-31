@@ -1507,13 +1507,13 @@ function setupTreeMail() {
       requestAnimationFrame(placeHint);
       return;
     }
-    const actionAnchor = screenPointFromCanvas(640, 360);
+    const actionAnchor = screenPointFromCanvas(640, 200);
     if (actions) {
       actions.style.left = `${actionAnchor.x}px`;
       actions.style.top = `${actionAnchor.y + 46}px`;
     }
     if (hint && !busy) {
-      const hintAnchor = screenPointFromCanvas(640, 360);
+      const hintAnchor = screenPointFromCanvas(640, 200);
       hint.style.left = `${hintAnchor.x}px`;
       hint.style.top = `${hintAnchor.y}px`;
     }

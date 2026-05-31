@@ -42,7 +42,7 @@ a {
   width: min(100vw, 430px);
   height: 100dvh;
   height: calc(var(--vh, 1vh) * 100);
-  min-height: 680px;
+  min-height: 520px;
   margin: 0 auto;
   overflow: hidden;
   background:
@@ -748,14 +748,24 @@ body[data-scene="world"] .world-panel p {
     border-radius: 32px;
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12);
   }
-}
 
-@media (min-width: 480px) {
   body[data-scene="pet"],
   body[data-scene="world"],
   body[data-scene="hatch"],
   body[data-scene="reveal"] {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+
+  body[data-scene="pet"] .douyin-shell,
+  body[data-scene="hatch"] .douyin-shell,
+  body[data-scene="reveal"] .douyin-shell {
+    margin: 0 auto;
+    min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 }
 
@@ -2291,6 +2301,7 @@ body.keyboard-open .cat-chat {
   .douyin-shell {
     width: 100vw;
     min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
   }
 
   .douyin-top {
@@ -2313,24 +2324,126 @@ body.keyboard-open .cat-chat {
   }
 
   .douyin-card-stage {
-    top: 70px;
-    right: 10px;
-    bottom: 72px;
-    left: 10px;
+    top: 66px;
+    right: 8px;
+    bottom: 66px;
+    left: 8px;
   }
 
   .douyin-feature-card {
-    border-radius: 24px;
+    border-radius: 18px;
   }
 
   .douyin-bottom {
-    height: 70px;
-    font-size: 15px;
+    height: 64px;
+    font-size: 14px;
   }
 
   .douyin-bottom strong {
-    width: 42px;
-    height: 31px;
+    width: 40px;
+    height: 28px;
+  }
+}
+
+/* Tablet and iPad: full-width shell centered, larger touch targets */
+@media (min-width: 561px) and (max-width: 1024px) {
+  .douyin-shell {
+    width: min(100vw, 540px);
+    min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
+    margin: 0 auto;
+  }
+
+  .douyin-top {
+    padding: 18px 20px 0;
+  }
+
+  .douyin-channel nav {
+    font-size: 16px;
+  }
+
+  .douyin-card-stage {
+    top: 78px;
+    right: 14px;
+    bottom: 78px;
+    left: 14px;
+  }
+
+  .douyin-bottom {
+    height: 72px;
+    font-size: 15px;
+  }
+
+  .cat-chat {
+    width: min(440px, calc(100vw - 48px));
+    max-height: min(560px, calc(calc(var(--vh, 1vh) * 100) - 160px - var(--keyboard-inset)));
+  }
+
+  .tree-mail {
+    right: calc(50% - min(270px, calc(50vw - 24px)));
+    left: calc(50% - min(270px, calc(50vw - 24px)));
+    max-height: min(440px, calc(calc(var(--vh, 1vh) * 100) - 200px - var(--keyboard-inset)));
+  }
+
+  .offer-rescue-shell {
+    max-height: min(680px, calc(calc(var(--vh, 1vh) * 100) - 48px));
+  }
+}
+
+/* Large tablet / iPad Pro / desktop: expand layout */
+@media (min-width: 1025px) {
+  .douyin-shell {
+    width: min(100vw, 640px);
+    min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
+    margin: 0 auto;
+  }
+
+  .douyin-top {
+    padding: 22px 24px 0;
+  }
+
+  .douyin-status {
+    font-size: 20px;
+  }
+
+  .douyin-channel nav {
+    font-size: 17px;
+    gap: 16px;
+  }
+
+  .douyin-card-stage {
+    top: 86px;
+    right: 18px;
+    bottom: 82px;
+    left: 18px;
+  }
+
+  .douyin-feature-card {
+    border-radius: 28px;
+  }
+
+  .douyin-bottom {
+    height: 80px;
+    font-size: 17px;
+  }
+
+  .douyin-bottom strong {
+    width: 48px;
+    height: 34px;
+    border-radius: 14px;
+    font-size: 30px;
+  }
+
+  .cat-chat {
+    width: min(480px, calc(100vw - 64px));
+    max-height: min(620px, calc(calc(var(--vh, 1vh) * 100) - 140px - var(--keyboard-inset)));
+  }
+
+  .tree-mail {
+    right: calc(50% - min(300px, calc(50vw - 32px)));
+    left: calc(50% - min(300px, calc(50vw - 32px)));
+    max-height: min(480px, calc(calc(var(--vh, 1vh) * 100) - 180px - var(--keyboard-inset)));
   }
 }
 
