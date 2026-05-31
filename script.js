@@ -1785,7 +1785,7 @@ function setupCatChat() {
       requestAnimationFrame(placeHint);
       return;
     }
-    const screen = screenPointFromCanvas(walker.x, walker.bottom - 174 * currentPetScale() - 24);
+    const screen = screenPointFromCanvas(walker.x, walker.bottom - 210 * currentPetScale() - 36);
     hint.style.left = `${screen.x}px`;
     hint.style.top = `${screen.y}px`;
     hint.style.bottom = "auto";
